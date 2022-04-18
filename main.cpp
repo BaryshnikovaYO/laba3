@@ -141,21 +141,37 @@ show_histogram_svg(const vector<size_t>& bins)
     const auto TEXT_WIDTH = 50;
     const auto BIN_HEIGHT = 30;
     const auto BLOCK_WIDTH = 10;
+
     svg_begin(IMAGE_WIDTH, IMAGE_HEIGHT);
-    svg_text(TEXT_LEFT, TEXT_BASELINE, to_string(bins[0]));
-    svg_rect(TEXT_WIDTH, 0, bins[0] * BLOCK_WIDTH, BIN_HEIGHT);
-    svg_rect(0, 0, 100, 200);                    // svg_rect(0, 0, 100, 200, "black", "black");
-    svg_rect(0, 0, 100, 200, "red");             // svg_rect(0, 0, 100, 200, "red",   "black");
-    svg_rect(0, 0, 100, 200, "blue", "#aaffaa");
+
+    const auto MAX_BIN_WIDTH = IMAGE_WIDTH - TEXT_WIDTH;
+
+    size_t max_bins_width = bins[0];
+	for (size_t bin : bins)
+	{
+		if (bin > max_bins_width)
+		{
+			max_bins_width = bin;
+		}
+	}
+
+	max_bins_width = max_bins_width * BLOCK_WIDTH;
+
     double top = 0;
 
-    for (size_t bin : bins)
-    {
-        const double bin_width = BLOCK_WIDTH * bin;
-        svg_text(TEXT_LEFT, top + TEXT_BASELINE, to_string(bin));
-        svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT);
-        top += BIN_HEIGHT;
-    }
+	for (size_t bin : bins)
+	{
+		double bin_width = BLOCK_WIDTH * bin;
+		if (max_bins_width >= MAX_BIN_WIDTH)
+		{
+			bin_width = MAX_BIN_WIDTH * (bin_width / max_bins_width) - 1;
+		}
+
+		svg_text(TEXT_LEFT, top + TEXT_BASELINE, to_string(bin));
+		svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT, "black");
+		top += BIN_HEIGHT;
+	}
+
     svg_end();
 }
 
